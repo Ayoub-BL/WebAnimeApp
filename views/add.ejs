@@ -1,0 +1,90 @@
+<%- include('navBar.ejs'); -%>
+<%- include('messages.ejs'); -%>
+
+<%
+    let imageError = "";
+    let image = "";
+    async function encode() {
+        let srcData = null;
+        let promise = new Promise((resolve, reject) => {
+            try {
+                if (!window.FileReader) {
+                    reject("L'API de fichier n'est pas encore prise en charge sur ce navigateur!");
+                }
+                let selectedFile = document.getElementById("imageFileInput").files;
+                if (!selectedFile) {
+                    reject("Élément d'entrée de fichier non défini!");
+                }
+                if (selectedFile.length > 0) {
+                    let imageFile = selectedFile[0];
+                    let imageName = imageFile.name;
+                    if (imageName.length > 60) {
+                        reject("Le nom de l'image est très long!");
+                    }
+                    let imageSize = imageFile.size;
+                    if( imageSize > 2000000) {
+                        let appropriateSize = this.formatBytes(imageSize, 4);
+                        reject(`L'image "` + imageName + `" avec une taille (`
+                                + appropriateSize + `) est supérieure à la taille MAX(2MO) autorisée!`);
+                    }
+                    let fileReader = new FileReader();
+                    fileReader.onload = async (fileLoadedEvent) => {
+                        srcData = fileLoadedEvent.target.result;
+                        //let newImage = document.createElement('img');
+                        if (srcData !== null) {
+                            if (srcData !== "") {
+                                resolve( srcData );
+                            } else {
+                                console.log("srcData()=" + srcData);
+                                resolve("");
+                            }
+                        } else {
+                            resolve(null);
+                        }
+                    };
+                    fileReader.readAsDataURL(imageFile);
+                }
+                else {
+                    resolve(null);
+                }
+            } catch (e) {
+                reject(e.message);
+            }
+        });
+
+        await promise
+                .then(resolve => {
+                    if (resolve !== null) {
+                        document.getElementById("imageId").src = resolve;
+                        image: resolve;
+                    }
+                })
+                .catch(error => {
+                    imageError = `* ` + error;
+                });
+    };
+ %>
+
+<form action="/add" method="POST">
+    <br/><br/>
+    <label class="text-primary">Choose an anime picture:</label>
+    <input type="file"
+           id="animeImage" name="animeImage"
+           accept="image/png, image/jpeg, image/jpg"/>
+
+    <div class="form-group">
+        <label class="text-primary">Title</label>
+        <input type="text" name="title" class="form-control"/>
+    </div>
+    <div class="form-group">
+        <label class="text-primary">Category</label>
+        <input type="text" name="category" class="form-control"/>
+    </div>
+    <div class="form-group">
+        <label class="text-primary">Description</label>
+        <textarea class="form-control" name="description" rows="4"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+</form>

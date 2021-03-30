@@ -1,0 +1,36 @@
+<%- include('navBar.ejs'); -%>
+<br>
+<p class="text-secondary my-auto mr-auto">Welcome <%= user.name %></p>
+<br>
+<%- include('messages.ejs'); -%>
+<div>
+
+
+    <div class="card-columns">
+        <% if (returnValue.length > 0){ %>
+            <% for (var i = 0; i < returnValue.length;  i++ ) { %>
+
+                <div class="card border-dark " style="width: 22rem;">
+                    <img class="card-img-top" src="anime_default.jpg" alt="Card image cap"/>
+                    <div class="card-body">
+                        <h5 class="card-title text-secondary" name="title"><%= returnValue[i]["title"] %></h5>
+                        <p class="card-text">Category : <%= returnValue[i]["category"] %></p>
+                        <p class="card-text"><%= returnValue[i]["description"] %></p>
+                        <form action="/index/edithome" method="POST">
+                            <input name="idAnime" type="hidden" value="<%= returnValue[i] %>">
+                            <button formaction="/edithome" type="submit" class="btn btn-primary float-left">Edit</button>
+                        </form><form action="/index/delete" method="POST">
+                            <input name="idAnime" type="hidden" value="<%= returnValue[i]["_id"] %>">
+                            <button formaction="/delete" type="submit" class="btn btn-danger float-right ">Delete
+                            </button>
+                        </form>
+                        <br><br>
+                    </div>
+                </div>
+
+            <% } %>
+        <% } %>
+    </div>
+
+</div>
+
